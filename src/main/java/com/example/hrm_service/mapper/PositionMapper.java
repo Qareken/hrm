@@ -12,15 +12,8 @@ public interface PositionMapper {
 
     PositionMapper INSTANCE = Mappers.getMapper(PositionMapper.class);
 
-//    @Mapping(target = "id", source = "id")
-//    @Mapping(target = "name", source = "name")
-//    @Mapping(target = "grade", source = "grade")
-//    @Mapping(target = "typePosition", source = "typePosition")
     PositionDTO toDto(Position entity);
 
-//    @Mapping(target = "id", source = "id")
-//    @Mapping(target = "name", source = "name")
-//    @Mapping(target = "grade", source = "grade")
-//    @Mapping(target = "typePosition", source = "typePosition")
+
     Position toEntity(PositionDTO dto);
 }

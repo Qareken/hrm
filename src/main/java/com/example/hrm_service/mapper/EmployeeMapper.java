@@ -21,15 +21,6 @@ public interface EmployeeMapper {
 
     EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
 
-//    @Mapping(target = "id", source = "id")
-//    @Mapping(target = "firstname", source = "firstname")
-//    @Mapping(target = "surname", source = "surname")
-//    @Mapping(target = "lastName", source = "lastName")
-//    @Mapping(target = "dateOfBirth", source = "dateOfBirth")
-//    @Mapping(target = "phoneNumber", source = "phoneNumber")
-//    @Mapping(target = "email", source = "email")
-//    @Mapping(target = "numberOfPassport", source = "numberOfPassport")
-//    @Mapping(target = "address", source = "address")
 
     EmployeeDTO toDto(Employee entity);
 

@@ -24,57 +24,21 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Пример маппера, который преобразует сущности
- * в различные Response-объекты.
- */
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class ResponseMapper {
 
     public static final ResponseMapper INSTANCE = Mappers.getMapper(ResponseMapper.class);
 
-    // --------------------------------------------------------------------------------
-    // 1. FamilyResponse
-    // --------------------------------------------------------------------------------
-//    @Mapping(target = "id", source = "id")
-//    @Mapping(target = "name", source = "name")
-//    @Mapping(target = "lastname", source = "lastname")
-//    @Mapping(target = "surname", source = "surname")
-//    @Mapping(target = "dateOfBirth", source = "dateOfBirth")
-//    @Mapping(target = "relationShip", source = "relationShip")
-//    @Mapping(target = "address", source = "address")
-//    @Mapping(target = "work", source = "work")
+
     public abstract FamilyResponse toFamilyResponse(EmployeeFamily entity);
 
     public abstract List<FamilyResponse> toFamilyResponseList(List<EmployeeFamily> entities);
 
-    // --------------------------------------------------------------------------------
-    // 2. WorkExperienceResponse
-    //
-    // У вас в WorkExperienceResponse есть поля:
-    //  - start
-    //  - end
-    //  - notes
-    //  - organizationName
-    //  - position
-    //
-    // Для ExternalWorkExperience: organizationName = externalOrganizationName, position = externalPosition
-    // Для InternalWorkExperience: organizationName = division.name, position = position.name (или typePosition.name)
-    // --------------------------------------------------------------------------------
 
-//    @Mapping(target = "start", source = "start")
-//    @Mapping(target = "end", source = "end")
-//    @Mapping(target = "notes", source = "notes")
-//    // organizationName и position будут проставляться кастомно:
-//    @Mapping(target = "organizationName", ignore = true)
-//    @Mapping(target = "position", ignore = true)
     public abstract WorkExperienceResponse baseWorkExperienceToResponse(WorkExperience entity);
 
-    /**
-     * Универсальный метод, который проверяет наследника
-     * (ExternalWorkExperience / InternalWorkExperience)
-     * и маппит в {@link WorkExperienceResponse}
-     */
+
     @Named("toWorkExperienceResponse")
     public WorkExperienceResponse toWorkExperienceResponse(WorkExperience entity) {
         if (entity == null) {
@@ -103,21 +67,11 @@ public abstract class ResponseMapper {
         return response;
     }
 
-    /**
-     * Для списков
-     */
+
     @IterableMapping(qualifiedByName = "toWorkExperienceResponse")
     public abstract List<WorkExperienceResponse> toWorkExperienceResponseList(Collection<? extends WorkExperience> entities);
 
-    // --------------------------------------------------------------------------------
-    // 3. EmployeeWithPosition
-    //    Обычно это "облегчённая" модель, где нужно ID, ФИО и актуальная должность.
-    // --------------------------------------------------------------------------------
-    /**
-     * Пример маппинга для "короткой" информации о сотруднике с позицией
-     * Возможно, вы получаете эти данные через кастомный запрос (JOIN),
-     * но если нужно собрать вручную — вот пример.
-     */
+
     @Named("toEmployeeWithPosition")
     public EmployeeWithPosition toEmployeeWithPosition(Employee emp) {
         if (emp == null) {
@@ -133,10 +87,6 @@ public abstract class ResponseMapper {
         return new EmployeeWithPosition(employeeId, name, posType);
     }
 
-    /**
-     * Вспомогательный метод для сборки ФИО.
-     * Зависит от ваших нужд: можно собрать строкой, можно по-разному.
-     */
     protected String buildFullName(Employee emp) {
         StringBuilder sb = new StringBuilder();
         if (emp.getFirstname() != null) sb.append(emp.getFirstname());
@@ -145,15 +95,10 @@ public abstract class ResponseMapper {
         return sb.toString().trim();
     }
 
-    /**
-     * Вспомогательный метод, чтобы вытащить тип позиции (TypePosition)
-     * из актуального (или последнего) InternalWorkExperience.
-     * Логика — примерная, настройте под себя.
-     */
+
     protected Position.TypePosition extractCurrentPositionType(Employee emp) {
         if (emp.getWorkExperiences() == null) return null;
-        // Ищем последнюю InternalWorkExperience
-        // Можно по startDate, например
+
         return emp.getWorkExperiences().stream()
                 .filter(we -> we instanceof InternalWorkExperience)
                 .map(we -> (InternalWorkExperience) we)
@@ -167,26 +112,6 @@ public abstract class ResponseMapper {
     @IterableMapping(qualifiedByName = "toEmployeeWithPosition")
     public abstract List<EmployeeWithPosition> toEmployeeWithPositionList(Collection<Employee> employees);
 
-    // --------------------------------------------------------------------------------
-    // 4. EmployeeShortResponse
-    //    (firstname, surname, lastName, position, division)
-    //
-    //    Предположим, position и division также берём из актуального InternalWorkExperience.
-    // --------------------------------------------------------------------------------
-//    @Mapping(target = "firstname", source = "firstname")
-//    @Mapping(target = "surname", source = "surname")
-//    @Mapping(target = "lastName", source = "lastName")
-    // position и division берём кастомно (через выражения или default-методы)
-//    @Mapping(target = "position", expression = "java(extractPositionNameFromEmployee(entity))")
-//    @Mapping(target = "division", expression = "java(extractDivisionNameFromEmployee(entity))")
-//    public abstract EmployeeShortResponse toEmployeeShortResponse(Employee entity);
-
-    // Для списков
-//    public abstract List<EmployeeShortResponse> toEmployeeShortResponseList(Collection<Employee> entities);
-
-    /**
-     * Можно прописать логику, как извлечь название позиции (string)
-     */
     protected String extractPositionNameFromEmployee(Employee emp) {
         if (emp.getWorkExperiences() == null) return null;
         // ищем актуальную InternalWorkExperience
@@ -211,29 +136,11 @@ public abstract class ResponseMapper {
                 .orElse(null);
     }
 
-    // --------------------------------------------------------------------------------
-    // 5. DivisionResponse
-    //    Имеет поля: name, description, employeeResponses (List<EmployeeWithPosition>), head, clerk
-    //    Сейчас head и clerk — просто String, но в сущности может быть Employee,
-    //    или они могут быть закомментированы.
-    // --------------------------------------------------------------------------------
-//    @Mapping(target = "name", source = "name")
-//    @Mapping(target = "description", source = "description")
-    // employees -> employeeResponses
-    // head -> вычислять кастомно
-    // clerk -> вычислять кастомно
-//    @Mapping(target = "employeeResponses", expression = "java(toEmployeeWithPositionList(entityEmployeesOrEmpty(division)))")
-//    @Mapping(target = "head", expression = "java(resolveHead(division))")
-//    @Mapping(target = "clerk", expression = "java(resolveClerk(division))")
     public abstract DivisionResponse toDivisionResponse(Division division);
 
-    /**
-     * Если поля head, clerk в `Division` закомментированы, значит данные где-то ещё.
-     * Здесь можем вернуть null или какую-то заглушку.
-     */
+
     protected String resolveHead(Division division) {
-        // Пример: если бы была связь @OneToOne Employee head
-        // return division.getHead() != null ? division.getHead().getFirstname() : null;
+
         return null;
     }
 
@@ -242,14 +149,6 @@ public abstract class ResponseMapper {
         return null;
     }
 
-    /**
-     * Пример получения списка сотрудников из division.getEmployees().
-     */
-//    protected Set<Employee> entityEmployeesOrEmpty(Division division) {
-//        // Если getEmployees() == null, вернём пустой сет
-//        return division.getE() != null ? division.getEmployees() : Collections.emptySet();
-//    }
 
-    // Если нужно делать список DivisionResponse:
     public abstract List<DivisionResponse> toDivisionResponseList(Collection<Division> divisions);
 }

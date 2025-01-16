@@ -21,7 +21,7 @@ import org.mapstruct.factory.Mappers;
 )
 public interface WorkExperienceMapper {
     WorkExperienceMapper INSTANCE = Mappers.getMapper(WorkExperienceMapper.class);
-    // ExternalWorkExperience
+
     @Mapping(target = "externalOrganizationName", source = "externalOrganizationName")
     @Mapping(target = "externalPosition", source = "externalPosition")
     ExternalWorkExperienceDTO toDto(ExternalWorkExperience entity);
@@ -29,7 +29,7 @@ public interface WorkExperienceMapper {
     @InheritInverseConfiguration
     ExternalWorkExperience toEntity(ExternalWorkExperienceDTO dto);
 
-    // InternalWorkExperience
+
     @Mapping(target = "division", source = "division")
     @Mapping(target = "position", source = "position")
     InternalWorkExperienceDTO toDto(InternalWorkExperience entity);
@@ -37,7 +37,6 @@ public interface WorkExperienceMapper {
     @InheritInverseConfiguration
     InternalWorkExperience toEntity(InternalWorkExperienceDTO dto);
 
-    // Универсальный метод для полиморфного маппинга
     default WorkExperienceDTO toDto(WorkExperience entity) {
         if (entity instanceof ExternalWorkExperience) {
             return toDto((ExternalWorkExperience) entity);

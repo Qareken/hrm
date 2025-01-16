@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME, // Use a type name to differentiate subclasses
-        include = JsonTypeInfo.As.PROPERTY, // Include the type information as a property
-        property = "type" // The property to indicate the subclass type
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InternalWorkExperienceDTO.class, name = "internal"),

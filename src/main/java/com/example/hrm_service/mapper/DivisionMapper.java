@@ -10,8 +10,7 @@ public interface DivisionMapper {
 
     DivisionMapper INSTANCE = Mappers.getMapper(DivisionMapper.class);
 
-//    @Mapping(target = "name", source = "name")
-//    @Mapping(target = "description", source = "description")
+
     DivisionDTO toDto(Division entity);
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateFromDto(DivisionDTO dto, @MappingTarget Division entity);
