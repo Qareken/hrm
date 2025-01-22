@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -35,7 +36,18 @@ public class Employee {
     @OneToMany(mappedBy = "employee",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
 
     Set<WorkExperience> workExperiences;
-
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Vacation> vacations = new HashSet<>();
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<VacationBalance> balances = new HashSet<>();
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SickLeave> sickLeaves = new HashSet<>();
 
 
 }
