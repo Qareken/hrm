@@ -39,15 +39,14 @@ public class Employee {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Vacation> vacations = new HashSet<>();
+    private Set<Vacation> vacations ;
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<VacationBalance> balances = new HashSet<>();
+    private Set<VacationBalance> balances ;
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<SickLeave> sickLeaves = new HashSet<>();
-
+    private Set<SickLeave> sickLeaves ;
 
 }

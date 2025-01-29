@@ -30,4 +30,5 @@ public class VacationPolicy {
     private Boolean unpaid;
 
     private Boolean attestation;
+    private Position.TypePosition typePosition;
 }

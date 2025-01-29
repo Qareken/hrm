@@ -16,4 +16,5 @@ public class VacationDTO {
     private LocalDate endDate;
     private Integer totalDays;
     private String status;
+    private Integer year;
 }

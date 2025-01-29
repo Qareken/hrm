@@ -29,5 +29,5 @@ public class VacationBalance {
     private Integer accruedDays;
 
     private Integer usedDays;
-
+    private Integer usedCount;
 }

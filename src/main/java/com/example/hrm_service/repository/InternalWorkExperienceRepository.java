@@ -28,4 +28,15 @@ public interface InternalWorkExperienceRepository extends JpaRepository<Internal
             @Param("typePosition") Position.TypePosition typePosition,
             @Param("grade") Integer grade
     );
+    @Query(value = """
+    SELECT * 
+    FROM internal_work_experience 
+    WHERE employee_id = :employeeId
+      AND end_date IS NULL
+    ORDER BY start DESC
+    LIMIT 1
+    """,
+            nativeQuery = true)
+    Optional<InternalWorkExperience> findCurrentWorkExperienceByEmployeeId(@Param("employeeId") Long employeeId);
 }
+

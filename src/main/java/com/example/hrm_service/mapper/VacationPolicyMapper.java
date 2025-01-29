@@ -2,9 +2,10 @@ package com.example.hrm_service.mapper;
 
 import com.example.hrm_service.dto.VacationPolicyDTO;
 import com.example.hrm_service.dto.VacationPolicyResponseDTO;
+
 import com.example.hrm_service.entity.VacationPolicy;
-import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
+
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface VacationPolicyMapper {
     VacationPolicy toEntity(VacationPolicyDTO dto);
     VacationPolicyResponseDTO toResponse(VacationPolicy entity);
     List<VacationPolicyResponseDTO> toResponseList(List<VacationPolicy> entities);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromDto(VacationPolicyDTO dto, @MappingTarget VacationPolicy entity);
 }

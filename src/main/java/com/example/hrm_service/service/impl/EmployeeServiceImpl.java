@@ -10,7 +10,11 @@ import com.example.hrm_service.web.EmployeeWithPosition;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class EmployeeServiceImpl  implements EmployeeService {
+public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeResponseMapper employeeResponseMapper;
     private final EmployeeMapper employeeMapper;
@@ -27,9 +31,11 @@ public class EmployeeServiceImpl  implements EmployeeService {
     private final ResponseMapper responseMapper;
     private final DivisionRepository divisionRepository;
     private final PositionRepository positionRepository;
-    private final EmployeeFamilyRepository employeeFamilyRepository;
-    private final ExternalWorkExperienceRepository externalWorkExperienceRepository;
+   private final VacationMapper vacationMapper;
+   private final VacationBalanceMapper balanceMapper;
     private final WorkExperienceServiceImpl workExperienceService;
+
+
     @Override
     public EmployeeResponse save(EmployeeDTO employeeDTO) {
         Employee employee = employeeMapper.toEntity(employeeDTO);
@@ -39,22 +45,22 @@ public class EmployeeServiceImpl  implements EmployeeService {
     @Override
     @Transactional
     public EmployeeResponse addExperience(Long id, WorkExperienceDTO workExperience) {
-        Employee employee = employeeRepository.findById(id).orElseThrow(()->new RuntimeException("Entity Not Found"));
-        if(workExperience instanceof InternalWorkExperienceDTO){
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity Not Found"));
+        if (workExperience instanceof InternalWorkExperienceDTO) {
             InternalWorkExperience internalWorkExperience = (InternalWorkExperience) workExperienceMapper.toEntity(workExperience);
-            workExperienceService.checkForInternalWorkExperience(employee.getId(),internalWorkExperience);
+            workExperienceService.checkForInternalWorkExperience(employee.getId(), internalWorkExperience);
             internalWorkExperience.setEmployee(employee);
             var optional = divisionRepository.findByCode(internalWorkExperience.getDivision().getCode());
             var position = positionRepository.findByTypePositionAndGrade(internalWorkExperience.getPosition().getTypePosition(), internalWorkExperience.getPosition().getGrade());
-            if(position.isEmpty()){
+            if (position.isEmpty()) {
                 log.info("is empty position");
                 internalWorkExperience.setPosition(positionRepository.save(internalWorkExperience.getPosition()));
 
             }
-            if(optional.isEmpty()){
+            if (optional.isEmpty()) {
                 internalWorkExperience.setDivision(divisionRepository.save(internalWorkExperience.getDivision()));
                 log.info("is empty");
-            }else {
+            } else {
                 internalWorkExperience.setDivision(optional.get());
             }
 
@@ -72,11 +78,12 @@ public class EmployeeServiceImpl  implements EmployeeService {
         response.setFamilyDTO(setFamily);
         return response;
     }
+
     @Transactional
     @Override
     public EmployeeResponse addFamily(Long id, FamilyDTO familyDTO) {
-        Employee employee = employeeRepository.findById(id).orElseThrow(()->new RuntimeException("Entity Not Found"));
-        EmployeeFamily family =familyMapper.toEntity(familyDTO);
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity Not Found"));
+        EmployeeFamily family = familyMapper.toEntity(familyDTO);
 
         family.setEmployee(employee);
         employee.getFamilyMember().add(family);
@@ -85,13 +92,31 @@ public class EmployeeServiceImpl  implements EmployeeService {
 
     @Override
     public EmployeeResponse findById(Long id) {
-        return employeeResponseMapper.toResponse(employeeRepository.findById(id).orElseThrow(()->new RuntimeException("Entity not found")));
+        return employeeResponseMapper.toResponse(employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found")));
     }
 
     @Override
     public List<EmployeeWithPosition> findAll() {
         return employeeRepository.findAll().stream().map(responseMapper::toEmployeeWithPosition).toList();
     }
+
+    @Override
+    public Page<EmployeeResponseWithVacation> findByDivision(Long divisionId, Pageable pageable) {
+        Page<Employee> employees = employeeRepository.findByDivisionIdWithVacationsAndBalances(divisionId, pageable);
+        List<EmployeeResponseWithVacation> employeeResponseWithVacations= employees.stream().map(this::convert).toList();
+        return new PageImpl<>(employeeResponseWithVacations, pageable, employees.getTotalElements());
+
+    }
+    private EmployeeResponseWithVacation convert(Employee employee){
+        return EmployeeResponseWithVacation.builder()
+                .firstname(employee.getFirstname())
+                .lastName(employee.getLastName())
+                .email(employee.getEmail())
+                .surname(employee.getEmail())
+                .vacations(vacationMapper.toResponseList(employee.getVacations().stream().toList()))
+                .balances(balanceMapper.toResponseList(employee.getBalances().stream().toList())).build();
+    }
+
 
 }
 
